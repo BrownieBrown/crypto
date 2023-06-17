@@ -136,3 +136,11 @@ func (bc *BinanceClient) GetTradeHistory(symbol string) ([]*binance.TradeV3, err
 
 	return trades, nil
 }
+
+func (bc *BinanceClient) GetHistoricalData(symbol string, interval string, limit int) ([]*binance.Kline, error) {
+	data, err := bc.Client.NewKlinesService().Symbol(symbol).Interval(interval).Limit(limit).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}

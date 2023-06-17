@@ -8,4 +8,6 @@ const (
 	TestFree      = "0.10000000"
 	TestMakerComm = int64(15)
 	TestOrderID   = int64(1234)
+	TestLimit     = 1
+	TestInterval  = "1h"
 )

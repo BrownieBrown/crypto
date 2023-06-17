@@ -167,3 +167,30 @@ func TestGetTradeHistory(t *testing.T) {
 		})
 	}
 }
+
+func TestHistoricalData(t *testing.T) {
+	client := setupTestClient()
+
+	testCases := []struct {
+		name          string
+		expectedError bool
+	}{
+		{
+			name:          "get historical data",
+			expectedError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			history, err := client.GetHistoricalData(constants.TestSymbol, constants.TestInterval, constants.TestLimit)
+
+			if tc.expectedError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, history)
+			}
+		})
+	}
+}

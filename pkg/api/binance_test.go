@@ -157,6 +157,22 @@ func TestMockBinanceClient(t *testing.T) {
 				assert.Equal(t, "failed to get trade history", err.Error())
 			},
 		},
+		{
+			name: "TestGetHistoricalData_Success",
+			testFunc: func(t *testing.T) {
+				history, err := mockClient.GetHistoricalData(constants.TestSymbol, constants.TestInterval, constants.TestLimit)
+				assert.NoError(t, err)
+				assert.Equal(t, len(history), 2)
+			},
+		},
+		{
+			name: "TestGetHistoricalData_Failure",
+			testFunc: func(t *testing.T) {
+				_, err := mockClient.GetHistoricalDataError(constants.TestSymbol, constants.TestInterval, constants.TestLimit)
+				assert.Error(t, err)
+				assert.Equal(t, "failed to get historical data", err.Error())
+			},
+		},
 	}
 
 	for _, tc := range testCases {

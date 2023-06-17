@@ -278,3 +278,40 @@ func (m *MockBinanceClient) GetTradeHistory(symbol string) ([]*binance.TradeV3, 
 func (m *MockBinanceClient) GetTradeHistoryError(symbol string) ([]*binance.TradeV3, error) {
 	return nil, errors.New("failed to get trade history")
 }
+
+func (m *MockBinanceClient) GetHistoricalData(symbol string, interval string, limit int) ([]*binance.Kline, error) {
+	data := []*binance.Kline{
+		&binance.Kline{
+			OpenTime:                 1,
+			Open:                     "",
+			High:                     "",
+			Low:                      "",
+			Close:                    "",
+			Volume:                   "",
+			CloseTime:                0,
+			QuoteAssetVolume:         "",
+			TradeNum:                 0,
+			TakerBuyBaseAssetVolume:  "",
+			TakerBuyQuoteAssetVolume: "",
+		},
+		&binance.Kline{
+			OpenTime:                 2,
+			Open:                     "",
+			High:                     "",
+			Low:                      "",
+			Close:                    "",
+			Volume:                   "",
+			CloseTime:                0,
+			QuoteAssetVolume:         "",
+			TradeNum:                 0,
+			TakerBuyBaseAssetVolume:  "",
+			TakerBuyQuoteAssetVolume: "",
+		},
+	}
+
+	return data, nil
+}
+
+func (m *MockBinanceClient) GetHistoricalDataError(symbol string, interval string, limit int) ([]*binance.Kline, error) {
+	return nil, errors.New("failed to get historical data")
+}
