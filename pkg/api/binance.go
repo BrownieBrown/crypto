@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"crypto/pkg/logger"
-	"fmt"
 	"github.com/adshao/go-binance/v2"
 	"go.uber.org/zap"
 	"strconv"
@@ -18,6 +17,7 @@ type BinanceAPI interface {
 	ListOpenOrders(symbol string) ([]*binance.Order, error)
 	ListOrders(symbol string) ([]*binance.Order, error)
 	GetTradeHistory(symbol string) ([]*binance.TradeV3, error)
+	GetHistoricalData(symbol string, interval string, limit int) ([]*binance.Kline, error)
 }
 
 type BinanceClient struct {
@@ -68,7 +68,7 @@ func (bc *BinanceClient) PlaceOrder(symbol string, side string, quantity float64
 		Symbol(symbol).
 		Side(binance.SideType(side)).
 		Type(binance.OrderTypeMarket).
-		Quantity(fmt.Sprintf("%.8f", quantity)).
+		Quantity(strconv.FormatFloat(quantity, 'f', 6, 64)).
 		Do(context.Background())
 
 	if err != nil {

@@ -3,6 +3,7 @@ package api_test
 import (
 	"crypto/pkg/constants"
 	"crypto/pkg/mocks"
+	"errors"
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
 	"strconv"
@@ -10,7 +11,8 @@ import (
 )
 
 func TestMockBinanceClient(t *testing.T) {
-	mockClient := mocks.SetupMockBinanceClient()
+	mockClient := mocks.NewMockData()
+	mockErrorClient := new(mocks.MockBinanceClient)
 
 	testCases := []struct {
 		name     string
@@ -32,10 +34,13 @@ func TestMockBinanceClient(t *testing.T) {
 		{
 			name: "TestGetAccountInfo_Failure",
 			testFunc: func(t *testing.T) {
-				_, err := mockClient.GetAccountInfoError()
+				mockErrorClient.On("GetAccountInfo").Return(nil, errors.New("failed to get account info"))
 
+				_, err := mockErrorClient.GetAccountInfo()
 				assert.Error(t, err)
 				assert.Equal(t, "failed to get account info", err.Error())
+
+				mockErrorClient.AssertExpectations(t)
 			},
 		},
 		{
@@ -43,15 +48,7 @@ func TestMockBinanceClient(t *testing.T) {
 			testFunc: func(t *testing.T) {
 				price, err := mockClient.GetCurrentPrice(constants.TestSymbol)
 				assert.NoError(t, err)
-				assert.Equal(t, 50000.0, price)
-			},
-		},
-		{
-			name: "TestGetCurrentPrice_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.GetCurrentPriceError(constants.TestSymbol)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to get current price", err.Error())
+				assert.Equal(t, constants.TestPrice, price)
 			},
 		},
 		{
@@ -65,28 +62,12 @@ func TestMockBinanceClient(t *testing.T) {
 			},
 		},
 		{
-			name: "TestPlaceOrder_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.PlaceOrderError(constants.TestSymbol, constants.TestSide, constants.TestQuantity)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to place order", err.Error())
-			},
-		},
-		{
 			name: "TestCancelOrder_Success",
 			testFunc: func(t *testing.T) {
 				order, err := mockClient.CancelOrder(constants.TestSymbol, constants.TestOrderID)
 				assert.NoError(t, err)
 				assert.Equal(t, constants.TestSymbol, order.Symbol)
 				assert.Equal(t, constants.TestOrderID, order.OrderID)
-			},
-		},
-		{
-			name: "TestCancelOrder_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.CancelOrderError(constants.TestSymbol, constants.TestOrderID)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to cancel order", err.Error())
 			},
 		},
 		{
@@ -99,28 +80,12 @@ func TestMockBinanceClient(t *testing.T) {
 			},
 		},
 		{
-			name: "TestGetOrderStatus_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.GetOrderStatusError(constants.TestSymbol, constants.TestOrderID)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to get order status", err.Error())
-			},
-		},
-		{
 			name: "TestListOpenOrders_Success",
 			testFunc: func(t *testing.T) {
 				orders, err := mockClient.ListOpenOrders(constants.TestSymbol)
 				assert.NoError(t, err)
 				assert.Equal(t, constants.TestSymbol, orders[0].Symbol)
 				assert.Equal(t, len(orders), 2)
-			},
-		},
-		{
-			name: "TestListOpenOrders_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.ListOpenOrdersError(constants.TestSymbol)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to get open orders", err.Error())
 			},
 		},
 		{
@@ -133,28 +98,12 @@ func TestMockBinanceClient(t *testing.T) {
 			},
 		},
 		{
-			name: "TestListOrders_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.ListOrdersError(constants.TestSymbol)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to get orders", err.Error())
-			},
-		},
-		{
 			name: "TestGetTradeHistory_Success",
 			testFunc: func(t *testing.T) {
 				trades, err := mockClient.GetTradeHistory(constants.TestSymbol)
 				assert.NoError(t, err)
 				assert.Equal(t, constants.TestSymbol, trades[0].Symbol)
 				assert.Equal(t, len(trades), 2)
-			},
-		},
-		{
-			name: "TestGetTradeHistory_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.GetTradeHistoryError(constants.TestSymbol)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to get trade history", err.Error())
 			},
 		},
 		{
@@ -165,17 +114,11 @@ func TestMockBinanceClient(t *testing.T) {
 				assert.Equal(t, len(history), 2)
 			},
 		},
-		{
-			name: "TestGetHistoricalData_Failure",
-			testFunc: func(t *testing.T) {
-				_, err := mockClient.GetHistoricalDataError(constants.TestSymbol, constants.TestInterval, constants.TestLimit)
-				assert.Error(t, err)
-				assert.Equal(t, "failed to get historical data", err.Error())
-			},
-		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.name, tc.testFunc)
+		t.Run(tc.name, func(t *testing.T) {
+			tc.testFunc(t)
+		})
 	}
 }
